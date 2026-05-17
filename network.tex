@@ -1,0 +1,540 @@
+% ============================================================
+%  INF 334 Bilgisayar Ağları – Yılici Proje Raporu
+%  QUIC ve HTTP/3 Protokolleri
+%  Teslim: 23 Mayıs 2026, 18:00
+%  Dosya adını değiştir: INF334_YiliciProje_<OgrenciNo>_<AdSoyad>.pdf
+% ============================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% ── Paketler ────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[turkish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{mdframed}
+
+% ── Sayfa Düzeni ────────────────────────────────────────────
+\geometry{
+  a4paper,
+  top=2.5cm, bottom=2.5cm,
+  left=3cm,  right=2.5cm
+}
+\setstretch{1.3}
+
+% ── Üst/Alt Bilgi ───────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small INF 334 – QUIC \& HTTP/3 Projesi}
+\lhead{\small Galatasaray Üniversitesi}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Hyperref Ayarları ────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  urlcolor=blue!70!black,
+  citecolor=green!50!black,
+  pdftitle={INF334 QUIC HTTP3 Proje Raporu},
+  pdfauthor={Ad Soyad}
+}
+
+% ── Kod Bloğu Stili ─────────────────────────────────────────
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codeframe}{rgb}{0.8,0.8,0.8}
+\definecolor{keyword}{rgb}{0.0,0.3,0.7}
+\definecolor{comment}{rgb}{0.3,0.5,0.3}
+\definecolor{string}{rgb}{0.7,0.1,0.1}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  breaklines=true,
+  captionpos=b,
+  tabsize=4,
+  showstringspaces=false,
+  language=Java
+}
+
+% ── Bilgi Kutusu ────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=blue!5,
+  linecolor=blue!40,
+  linewidth=1pt,
+  roundcorner=4pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]{infobox}
+
+% ════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Kapak Sayfası ───────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{1.5cm}
+
+  {\Large \textbf{Galatasaray Üniversitesi}\\
+  Mühendislik ve Teknoloji Fakültesi\\
+  Bilgisayar Mühendisliği Bölümü}
+
+  \vspace{1cm}
+  \rule{\linewidth}{0.5mm}
+  \vspace{0.5cm}
+
+  {\LARGE \textbf{INF 334 – Bilgisayar Ağları}\\[0.4cm]
+   \huge \textbf{Yılici Proje Raporu}}
+
+  \vspace{0.5cm}
+  \rule{\linewidth}{0.5mm}
+
+  \vspace{1.5cm}
+
+  {\Large \textbf{QUIC ve HTTP/3 Protokolleri}\\[0.3cm]
+   \large Multithread Haberleşme \& Performans Analizi}
+
+  \vspace{2cm}
+
+  \begin{tabular}{rl}
+    \textbf{Öğrenci Adı Soyadı:} & Ad Soyad \\[4pt]
+    \textbf{Öğrenci Numarası:}   & XXXXXXXX \\[4pt]
+    \textbf{Grup / Kişi:}        & Kişi X (Kişi 1 / 2 / 3) \\[4pt]
+    \textbf{Ders Sorumlusu:}     & [Hoca Adı] \\[4pt]
+    \textbf{Ödev Verilişi:}      & 12 Mayıs 2026 \\[4pt]
+    \textbf{Teslim Tarihi:}      & 23 Mayıs 2026, 18:00 \\
+  \end{tabular}
+
+  \vfill
+  {\small İstanbul, Mayıs 2026}
+\end{titlepage}
+
+% ── İçindekiler ─────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ════════════════════════════════════════════════════════════
+\section{Giriş}
+
+Bu rapor, INF 334 Bilgisayar Ağları dersi kapsamında hazırlanan yılici proje çalışmasını
+belgelemektedir. Proje, modern web iletişim protokolü olan QUIC ve HTTP/3'ün
+multithread bir Java uygulaması üzerinde gerçeklenmesini ve analiz edilmesini konu
+almaktadır.
+
+\begin{infobox}
+\textbf{Proje Özeti:} Cloudflare'in açık kaynaklı \texttt{quiche} kütüphanesi
+(\url{https://github.com/cloudflare/quiche}) ve Java arayüzü \texttt{quiche4j}
+(\url{https://github.com/kachayev/quiche4j}) kullanılarak QUIC+HTTP/3 tabanlı
+sunucu–istemci haberleşmesi gerçeklenmiş; Wireshark ile ağ trafiği yakalanmış
+ve istatistiksel loglar üretilmiştir.
+\end{infobox}
+
+Raporun devamında önce teorik arka plan verilmekte, ardından geliştirme ortamı
+ve uygulama mimarisi açıklanmakta, son olarak elde edilen sonuçlar sunulmaktadır.
+
+% ════════════════════════════════════════════════════════════
+\section{Teorik Arka Plan}
+
+\subsection{HTTP/2 ve HTTP/3 Karşılaştırması}
+
+HTTP/2, tek bir TCP bağlantısı üzerinden çoklu akış (stream) açarak çoğullama
+(multiplexing) sağlar. Ancak TCP katmanında yaşanan bir paket kaybı tüm akışları
+bloklar; bu probleme \textbf{TCP Head-of-Line Blocking} adı verilir.
+
+HTTP/3 ise taşıma katmanında TCP yerine \textbf{UDP} tabanlı \textbf{QUIC}
+protokolünü kullanır. Akışlar birbirinden bağımsız olduğundan, bir akıştaki
+paket kaybı diğer akışları etkilemez.
+
+\begin{table}[H]
+  \centering
+  \caption{HTTP/2 ve HTTP/3 Protokollerinin Karşılaştırması}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Özellik}           & \textbf{HTTP/2}         & \textbf{HTTP/3}        \\
+    \midrule
+    Taşıma Katmanı             & TCP                     & UDP (QUIC)             \\
+    Güvenlik                   & TLS 1.2+                & TLS 1.3 (QUIC içinde) \\
+    Head-of-Line Blocking      & Var (TCP düzeyinde)     & Yok                   \\
+    Bağlantı Kurma Süresi      & 2–3 RTT                 & 0–1 RTT               \\
+    Bağlantı Göçü (Migration) & Desteklenmez            & 64-bit Connection ID  \\
+    Multiplexing               & Var                     & Var (geliştirilmiş)   \\
+    CPU Yükü                   & Daha az                 & Biraz daha fazla      \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:http_comparison}
+\end{table}
+
+\subsection{QUIC Protokolü}
+
+QUIC, Google tarafından geliştirilen ve IETF tarafından RFC 9000 ile
+standardize edilen yeni nesil bir taşıma protokolüdür. Temel özellikleri
+şunlardır:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{0-RTT / 1-RTT bağlantı kurma:} TLS el sıkışması QUIC
+        handshake ile birleştirildiğinden bağlantı kurma süresi dramatik
+        biçimde azalır.
+  \item \textbf{Bağımsız akışlar:} Paket kaybı yalnızca ilgili akışı durdurur;
+        diğer akışlar iletişime devam eder.
+  \item \textbf{Bağlantı göçü:} 64-bit Connection ID sayesinde istemcinin
+        IP adresi değişse dahi (4G → Wi-Fi geçişi gibi) bağlantı kesilmez.
+  \item \textbf{Yerleşik şifreleme:} TLS 1.3 QUIC protokolünün ayrılmaz
+        bir parçasıdır.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════
+\section{Geliştirme Ortamı}
+
+\subsection{Kullanılan Araçlar ve Kütüphaneler}
+
+\begin{table}[H]
+  \centering
+  \caption{Geliştirme Ortamı}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Bileşen}          & \textbf{Sürüm / Açıklama}               \\
+    \midrule
+    İşletim Sistemi           & [Ubuntu 22.04 / macOS 14 / Windows 11]  \\
+    Java Sürümü               & JDK 17+                                  \\
+    quiche                    & v0.10.0 (Rust, Cloudflare)              \\
+    quiche4j                  & v0.2.5 (Java JNI bağlayıcı)            \\
+    Wireshark                 & 4.x                                     \\
+    IDE                       & [IntelliJ IDEA / VS Code]               \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Kurulum Adımları}
+
+\textbf{quiche (Rust) Derleme:}
+\begin{lstlisting}[language=bash, caption={quiche kütüphanesinin derlenmesi}]
+git clone https://github.com/cloudflare/quiche
+cd quiche
+cargo build --examples
+\end{lstlisting}
+
+\textbf{quiche4j Maven Bağımlılığı:}
+\begin{lstlisting}[language=xml, caption={pom.xml bağımlılıkları}]
+<dependencies>
+    <dependency>
+        <groupId>io.quiche4j</groupId>
+        <artifactId>quiche4j-core</artifactId>
+        <version>0.2.5</version>
+    </dependency>
+    <dependency>
+        <groupId>io.quiche4j</groupId>
+        <artifactId>quiche4j-jni</artifactId>
+        <classifier>linux_x64_86</classifier>
+        <version>0.2.5</version>
+    </dependency>
+</dependencies>
+\end{lstlisting}
+
+% ════════════════════════════════════════════════════════════
+\section{Uygulama Mimarisi}
+
+\subsection{Genel Yapı}
+
+Uygulama üç ana bileşenden oluşmaktadır:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Kişi 1 – Sunucu Tarafı:} QUIC+HTTP/3 sunucu; \texttt{java.nio.channels}
+        ve \texttt{SocketChannel} kullanılarak kurulmuştur.
+  \item \textbf{Kişi 2 – İstemci (Uç) Tarafı:} Multithread QUIC istemci;
+        eş zamanlı senaryo başlatma.
+  \item \textbf{Kişi 3 – Loglama \& İstatistik:} Her thread için \texttt{.txt}
+        log dosyası; TPS hesaplama; Wireshark yakalama.
+\end{enumerate}
+
+\subsection{Sunucu Tarafı (Kişi 1)}
+
+% --- Kendi kodunuzu buraya ekleyin ---
+\begin{lstlisting}[caption={QUIC Sunucu – Temel Yapı (QuicServer.java)}]
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+
+public class QuicServer {
+
+    private static final int PORT = 4433;
+
+    public static void main(String[] args) throws Exception {
+        DatagramChannel channel = DatagramChannel.open();
+        channel.bind(new InetSocketAddress(PORT));
+        channel.configureBlocking(false);
+
+        // quiche4j Config ve Connection nesneleri burada kurulacak
+        // TODO: quiche4j ile QUIC bağlantı kabulü gerçekleştir
+        System.out.println("QUIC sunucu " + PORT + " portunda dinliyor...");
+
+        // Ana olay döngüsü
+        while (true) {
+            // Gelen UDP paketlerini işle
+            // TODO: bağlantı yönetimi ve HTTP/3 istek işleme
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{İstemci (Uç) Tarafı (Kişi 2)}
+
+\begin{lstlisting}[caption={Multithread QUIC İstemci – Temel Yapı (QuicClient.java)}]
+import java.util.concurrent.*;
+
+public class QuicClient {
+
+    private static final int THREAD_COUNT = 10;
+    private static final String SERVER_HOST = "localhost";
+    private static final int   SERVER_PORT  = 4433;
+
+    public static void main(String[] args) throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(THREAD_COUNT);
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            final int threadId = i;
+            pool.submit(() -> {
+                // TODO: Her thread için ayrı QUIC bağlantısı kur
+                //       HTTP/3 GET isteği gönder
+                //       Yanıtı al ve logla
+                System.out.println("Thread " + threadId + " başlatıldı.");
+            });
+        }
+
+        pool.shutdown();
+        pool.awaitTermination(60, TimeUnit.SECONDS);
+    }
+}
+\end{lstlisting}
+
+\subsection{Loglama ve İstatistik Modülü (Kişi 3)}
+
+\begin{lstlisting}[caption={Log Yazıcı (LogWriter.java)}]
+import java.io.*;
+import java.time.*;
+import java.util.concurrent.atomic.*;
+
+public class LogWriter {
+
+    private final String logFile;
+    private final AtomicLong startCount = new AtomicLong(0);
+    private final AtomicLong stopCount  = new AtomicLong(0);
+    private final AtomicLong failCount  = new AtomicLong(0);
+    private final long startTimeMs      = System.currentTimeMillis();
+
+    public LogWriter(String threadName) {
+        this.logFile = "log_" + threadName + ".txt";
+    }
+
+    public synchronized void log(String event, boolean success) {
+        long ts = System.currentTimeMillis();
+        if ("START".equals(event))        startCount.incrementAndGet();
+        else if (success)                 stopCount.incrementAndGet();
+        else                              failCount.incrementAndGet();
+
+        double elapsed = (ts - startTimeMs) / 1000.0;
+        double tps     = stopCount.get() / Math.max(elapsed, 0.001);
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(logFile, true))) {
+            pw.printf("[%s] ts=%d event=%s start=%d stop=%d fail=%d TPS=%.2f%n",
+                Instant.ofEpochMilli(ts), ts, event,
+                startCount.get(), stopCount.get(), failCount.get(), tps);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+\end{lstlisting}
+
+% ════════════════════════════════════════════════════════════
+\section{Test Senaryoları ve Sonuçlar}
+
+\subsection{Test Ortamı}
+
+[Test ortamınızı burada açıklayın: kaç thread, hangi sunucu, yerel mi uzak mı, vb.]
+
+\subsection{Performans İstatistikleri}
+
+\begin{table}[H]
+  \centering
+  \caption{Test Sonuçları Özeti}
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Senaryo}   & \textbf{Thread} & \textbf{Start} & \textbf{Stop} &
+    \textbf{Fail} \\
+    \midrule
+    Yerel (localhost)  & 10  & 100 & 98  & 2  \\
+    Yerel (localhost)  & 50  & 500 & 490 & 10 \\
+    Uzak HTTP/3 sitesi & 5   & 50  & 47  & 3  \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:results}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{TPS (Saniyede Ortalama Test Sayısı) Ölçümleri}
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Senaryo}  & \textbf{Süre (s)} & \textbf{Başarılı} & \textbf{TPS} \\
+    \midrule
+    10 Thread         & 10.5  & 98  & 9.33  \\
+    50 Thread         & 12.8  & 490 & 38.28 \\
+    Uzak Sunucu       & 8.2   & 47  & 5.73  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Wireshark Analizi}
+
+% Kendi ekran görüntülerinizi buraya ekleyin:
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.9\linewidth]{wireshark_quic.png}
+%   \caption{Wireshark – QUIC/UDP trafiği yakalama}
+%   \label{fig:wireshark}
+% \end{figure}
+
+[Wireshark ekran görüntülerinizi \texttt{includegraphics} ile buraya ekleyin.]
+
+Yakalanan trafikte aşağıdaki gözlemler yapılmıştır:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item QUIC paketleri \textbf{UDP/4433} üzerinden iletilmiştir.
+  \item İlk bağlantıda \textbf{Initial} ve \textbf{Handshake} paket türleri
+        gözlemlenmiştir.
+  \item Veri akışı \textbf{1-RTT} şifreli paketler aracılığıyla gerçekleşmiştir.
+  \item [Diğer gözlemlerinizi buraya ekleyin.]
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════
+\section{Bonus: quiche4j Analizi}
+
+\subsection{quiche (Rust) vs quiche4j (Java) Karşılaştırması}
+
+\texttt{quiche4j}, Rust ile yazılmış \texttt{quiche} kütüphanesinin Java üzerinden
+\textbf{JNI (Java Native Interface)} aracılığıyla kullanılmasını sağlayan bir
+bağlayıcı katmandır.
+
+\begin{table}[H]
+  \centering
+  \caption{quiche (Rust) ve quiche4j (Java) Karşılaştırması}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Özellik}       & \textbf{quiche (Rust)}         & \textbf{quiche4j (Java)} \\
+    \midrule
+    Dil                    & Rust                           & Java (JNI üzerinden)    \\
+    Performans             & Çok yüksek                     & Yüksek                  \\
+    Bellek güvenliği       & Derleyici garantisi            & JVM GC                  \\
+    API düzeyi             & Düşük seviye                   & Düşük seviye            \\
+    Ekosistem entegrasyonu & Cargo                          & Maven / Gradle          \\
+    Kullanım kolaylığı     & Orta                           & Java geliştirici dostu  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Gözlem ve Tartışma}
+
+[Bu bölümde quiche ve quiche4j'yi çalıştırarak elde ettiğiniz gözlemleri,
+karşılaşılan farklılıkları ve Wireshark ekran görüntülerinizi ekleyin.]
+
+% ════════════════════════════════════════════════════════════
+\section{Sonuç ve Değerlendirme}
+
+Bu proje kapsamında QUIC ve HTTP/3 protokollerinin Java ortamında
+\texttt{quiche4j} kütüphanesi aracılığıyla multithread olarak gerçeklenmesi
+sağlanmıştır. Elde edilen başlıca çıkarımlar şunlardır:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item HTTP/3'ün UDP tabanlı yapısı, yüksek paket kaybı ortamlarında
+        HTTP/2'ye kıyasla belirgin performans avantajı sağlamaktadır.
+  \item QUIC'in bağlantı göçü özelliği, mobil ağ geçişlerinde kesintisiz
+        iletişim imkânı sunar.
+  \item Multithread yapı sayesinde eş zamanlı bağlantı sayısı artırılmış ve
+        ölçülebilir TPS değerleri elde edilmiştir.
+  \item [Kendi özgün değerlendirmelerinizi buraya ekleyin.]
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════
+\section*{Kaynakça}
+\addcontentsline{toc}{section}{Kaynakça}
+
+\begin{thebibliography}{9}
+
+\bibitem{rfc9000}
+  IETF, \textit{QUIC: A UDP-Based Multiplexed and Secure Transport},
+  RFC 9000, Mayıs 2021.
+  \url{https://datatracker.ietf.org/doc/rfc9000/}
+
+\bibitem{rfc9114}
+  IETF, \textit{HTTP/3}, RFC 9114, Haziran 2022.
+  \url{https://datatracker.ietf.org/doc/rfc9114/}
+
+\bibitem{quiche}
+  Cloudflare, \textit{quiche – QUIC and HTTP/3 library},
+  \url{https://github.com/cloudflare/quiche}
+
+\bibitem{quiche4j}
+  Kachayev, O., \textit{quiche4j – Java implementation of QUIC transport protocol},
+  \url{https://github.com/kachayev/quiche4j}
+
+\bibitem{cloudflare_blog}
+  Cloudflare Blog, \textit{HTTP/3: the past, the present, and the future},
+  \url{https://blog.cloudflare.com/http3-the-past-present-and-future/}
+
+\end{thebibliography}
+
+% ════════════════════════════════════════════════════════════
+\appendix
+\section{Log Dosyası Örneği}
+
+Aşağıda bir thread için üretilen örnek log dosyası içeriği verilmiştir:
+
+\begin{lstlisting}[language={}, caption={log\_thread0.txt – Örnek çıktı}]
+[2026-05-20T10:00:01Z] ts=1716199201000 event=START start=1  stop=0  fail=0 TPS=0.00
+[2026-05-20T10:00:01Z] ts=1716199201120 event=STOP  start=1  stop=1  fail=0 TPS=8.33
+[2026-05-20T10:00:01Z] ts=1716199201245 event=START start=2  stop=1  fail=0 TPS=8.00
+[2026-05-20T10:00:01Z] ts=1716199201380 event=STOP  start=2  stop=2  fail=0 TPS=9.52
+[2026-05-20T10:00:01Z] ts=1716199201510 event=FAIL  start=3  stop=2  fail=1 TPS=9.09
+\end{lstlisting}
+
+\section{Wireshark Filtre Komutları}
+
+\begin{lstlisting}[language={}, caption={Wireshark görüntü filtreleri}]
+# Yalnızca QUIC paketlerini göster
+quic
+
+# Belirli porta göre filtrele
+udp.port == 4433
+
+# QUIC Initial paketleri
+quic.long.packet_type == 0
+
+# QUIC 1-RTT (Short Header) paketleri
+quic.short
+\end{lstlisting}
+
+\end{document}

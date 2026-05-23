@@ -1,0 +1,44 @@
+> sending request to https://127.0.0.1:4433/
+> SSLKEYLOGFILE enabled: /Users/sanberk96/Projects/network/logs/sslkeys-bonus.log
+> handshake size: 1200
+> socket.recieve 91 bytes
+> conn.recv 91 bytes
+> conn.send 1200 bytes
+> socket.recieve 167 bytes
+> conn.recv 167 bytes
+> socket.recieve 1196 bytes
+> conn.recv 1196 bytes
+> socket.recieve 169 bytes
+> conn.recv 169 bytes
+! h3 conn is established
+> conn.send 1278 bytes
+> conn.send 113 bytes
+> conn.send 61 bytes
+> conn.send 43 bytes
+> conn.send 43 bytes
+> conn.send 108 bytes
+> conn.send 68 bytes
+> socket.recieve 73 bytes
+> conn.recv 73 bytes
+> socket.recieve 516 bytes
+> conn.recv 516 bytes
+> conn.send 43 bytes
+> socket.recieve 43 bytes
+> conn.recv 43 bytes
+> conn.send 43 bytes
+> socket.recieve 43 bytes
+> conn.recv 43 bytes
+> conn.send 43 bytes
+> socket.recieve 110 bytes
+> conn.recv 110 bytes
+:status: 200
+server: Quiche4j
+content-length: 11
+> socket.recieve 68 bytes
+> conn.recv 68 bytes
+< got body 11 bytes for 0
+Hello world
+> response finished
+> close code 0
+> conn.send 48 bytes
+! conn is closed recv=9 sent=13 lost=0 rtt=150 cwnd=14520 delivery_rate=537

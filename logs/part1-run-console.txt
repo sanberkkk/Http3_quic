@@ -1,0 +1,39 @@
+no quiche in java.library.path: /Users/sanberk96/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
+#####Starting Quiche Client at 16:31:38.932 # # # # #
+!!!!! Triggered an event for Thread ID 3 at 16:31:38.960 ! ! ! ! !
+!!!!! Triggered an event for Thread ID 4 at 16:31:38.957 ! ! ! ! !
+!!!!! Triggered an event for Thread ID 0 at 16:31:38.959 ! ! ! ! !
+!!!!! Triggered an event for Thread ID 1 at 16:31:38.957 ! ! ! ! !
+!!!!! Triggered an event for Thread ID 2 at 16:31:38.957 ! ! ! ! !
+***** Thread ID 2 successfully sent packet into channel *****
+***** Thread ID 1 successfully sent packet into channel *****
+***** Thread ID 0 successfully sent packet into channel *****
+!!!!! Triggered an event for Thread ID 5 at 16:31:39.017 ! ! ! ! !
+***** Thread ID 3 successfully sent packet into channel *****
+!!!!! Triggered an event for Thread ID 6 at 16:31:39.018 ! ! ! ! !
+***** Thread ID 5 successfully sent packet into channel *****
+***** Thread ID 6 successfully sent packet into channel *****
+!!!!! Triggered an event for Thread ID 8 at 16:31:39.018 ! ! ! ! !
+***** Thread ID 8 successfully sent packet into channel *****
+!!!!! Triggered an event for Thread ID 9 at 16:31:39.019 ! ! ! ! !
+***** Thread ID 9 successfully sent packet into channel *****
+!!!!! Triggered an event for Thread ID 7 at 16:31:39.019 ! ! ! ! !
+***** Thread ID 4 successfully sent packet into channel *****
+***** Thread ID 7 successfully sent packet into channel *****
+##### shutdown Thread Pool entirely - end of events #####
+((((( RESULTS )))))
+[16:31:39.031] Total event execution duration: 0.082 ms
+[16:31:39.035] Start event count: 10
+[16:31:39.038] Stop Event Count: 10
+[16:31:39.038] Fail Event Count: 0
+[16:31:39.038] TPS: 121,95
+============= TEST SUMMARY =============
+Test penceresi   : 0,124 saniye
+START olayları   : 10
+STOP  olayları   : 10  (başarılı)
+FAIL  olayları   : 0  (başarısız)
+Toplam transaction (STOP+FAIL): 10
+TPS (toplam)     : 80,90 tx/sn
+TPS (başarılı)   : 80,90 tx/sn
+Başarı oranı     : 100,00%
+========================================

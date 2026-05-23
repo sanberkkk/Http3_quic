@@ -10,6 +10,7 @@ public final class ConfigBuilder {
     private Boolean verifyPeer;
     private Boolean grease;
     private boolean enableEarlyData = false;
+    private boolean logKeys = false;
     private Boolean enableHystart;
     private Long maxIdleTimeout;
     private Long maxUdpPayloadSize;
@@ -98,6 +99,12 @@ public final class ConfigBuilder {
      */
     public final ConfigBuilder enableEarlyData() {
         this.enableEarlyData = true;
+        return this;
+    }
+
+    /** Enables TLS key logging to {@code SSLKEYLOGFILE} for Wireshark decryption. */
+    public final ConfigBuilder enableLogKeys() {
+        this.logKeys = true;
         return this;
     }
 
@@ -338,6 +345,10 @@ public final class ConfigBuilder {
 
         if (this.enableEarlyData) {
             Native.quiche_config_enable_early_data(pointer);
+        }
+
+        if (this.logKeys) {
+            Native.quiche_config_log_keys(pointer);
         }
 
         if (null != this.enableHystart) {

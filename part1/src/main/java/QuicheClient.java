@@ -2,11 +2,16 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.net.InetSocketAddress;
+import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.networkproject.logger.HighPerformanceLogger;
+import com.networkproject.logger.LogEvent;
+import com.networkproject.logger.StatisticsTracker;
 
 
 public class QuicheClient {
@@ -33,7 +38,17 @@ public class QuicheClient {
     private static final AtomicInteger stopEventCount = new AtomicInteger(0);
     private static final AtomicInteger failEventCount = new AtomicInteger(0);
 
+    private static HighPerformanceLogger logger;
+    private static StatisticsTracker tracker;
+
     public static void main (String[] args) {
+        logger = new HighPerformanceLogger(
+                Paths.get("quic_project_logs.txt"),
+                10_000,
+                HighPerformanceLogger.OverflowPolicy.BLOCK);
+        tracker = new StatisticsTracker();
+        tracker.start();
+
         System.out.println("#".repeat(5) + "Starting Quiche Client at " + LocalTime.now().format(TIME_FORMATTER) + " #".repeat(5));
 
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -58,10 +73,16 @@ public class QuicheClient {
         System.out.println("[" + LocalTime.now().format(TIME_FORMATTER) + "] Fail Event Count: " + failEventCount.get());
         System.out.println("[" + LocalTime.now().format(TIME_FORMATTER) + "] TPS: " + String.format("%.2f", datas.tps()));
 
+        tracker.stop();
+        tracker.printSummary(System.out);
+        logger.close();
     }
 
     private static  void startEvent (int id) {
         startEventCount.incrementAndGet();
+        tracker.recordStart();
+        logger.log(LogEvent.START,
+                "Thread ID " + id + " event started at " + LocalTime.now().format(TIME_FORMATTER));
         System.out.println("!".repeat(5) + " Triggered an event for Thread ID " + id +" at " + LocalTime.now().format(TIME_FORMATTER) + " !".repeat(5));
 
         try (DatagramChannel channel = DatagramChannel.open()) {
@@ -78,10 +99,16 @@ public class QuicheClient {
             channel.write(buffer);
 
             stopEventCount.incrementAndGet();
+            tracker.recordStop();
+            logger.log(LogEvent.STOP,
+                    "Thread ID " + id + " successfully sent packet into channel");
             System.out.println("*".repeat(5) + " Thread ID " + id + " successfully sent packet into channel " + "*".repeat(5));
 
         } catch (IOException e) {
             failEventCount.incrementAndGet();
+            tracker.recordFail();
+            logger.log(LogEvent.FAIL,
+                    "Thread ID " + id + " connection failed: " + e.getMessage());
             System.out.println("Error: " + e.getMessage());
         }
     }

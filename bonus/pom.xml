@@ -18,21 +18,33 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.quiche4j</groupId>
-            <artifactId>quiche4j-core</artifactId>
-            <version>0.2.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/quiche4j-core-0.2.5.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quiche4j</groupId>
-            <artifactId>quiche4j-jni</artifactId>
-            <version>0.2.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/quiche4j-jni-0.2.5.jar</systemPath>
-        </dependency>
-    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>io.quiche4j.examples.Http3Server</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>io.quiche4j.examples.Http3Server</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

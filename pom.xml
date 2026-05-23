@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>part3</module>
         <module>part1</module>
         <module>bonus</module>
     </modules>

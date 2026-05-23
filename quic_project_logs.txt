@@ -62,3 +62,20 @@
 [2026-05-23 20:27:44.950] [pool-1-thread-1#22] [Event: STOP] - Thread ID 7 QUIC/HTTP3 OK via Docker (exit 0)
 [2026-05-23 20:27:45.225] [pool-1-thread-5#26] [Event: STOP] - Thread ID 8 QUIC/HTTP3 OK via Docker (exit 0)
 [2026-05-23 20:27:45.273] [pool-1-thread-2#23] [Event: STOP] - Thread ID 9 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:29.477] [pool-1-thread-1#21] [Event: START] - Thread ID 0 event started at 22:38:29.463
+[2026-05-23 22:38:29.477] [pool-1-thread-4#24] [Event: START] - Thread ID 3 event started at 22:38:29.463
+[2026-05-23 22:38:29.477] [pool-1-thread-5#25] [Event: START] - Thread ID 4 event started at 22:38:29.465
+[2026-05-23 22:38:29.477] [pool-1-thread-3#23] [Event: START] - Thread ID 2 event started at 22:38:29.463
+[2026-05-23 22:38:29.476] [pool-1-thread-2#22] [Event: START] - Thread ID 1 event started at 22:38:29.463
+[2026-05-23 22:38:42.187] [pool-1-thread-3#23] [Event: STOP] - Thread ID 2 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:42.204] [pool-1-thread-3#23] [Event: START] - Thread ID 5 event started at 22:38:42.204
+[2026-05-23 22:38:42.748] [pool-1-thread-4#24] [Event: STOP] - Thread ID 3 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:42.749] [pool-1-thread-4#24] [Event: START] - Thread ID 6 event started at 22:38:42.748
+[2026-05-23 22:38:43.050] [pool-1-thread-1#21] [Event: STOP] - Thread ID 0 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:43.051] [pool-1-thread-1#21] [Event: START] - Thread ID 7 event started at 22:38:43.050
+[2026-05-23 22:38:43.171] [pool-1-thread-5#25] [Event: STOP] - Thread ID 4 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:43.172] [pool-1-thread-5#25] [Event: START] - Thread ID 8 event started at 22:38:43.172
+[2026-05-23 22:38:43.324] [pool-1-thread-2#22] [Event: STOP] - Thread ID 1 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:43.324] [pool-1-thread-2#22] [Event: START] - Thread ID 9 event started at 22:38:43.324
+[2026-05-23 22:38:51.225] [pool-1-thread-3#23] [Event: STOP] - Thread ID 5 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 22:38:52.425] [pool-1-thread-4#24] [Event: STOP] - Thread ID 6 QUIC/HTTP3 OK via Docker (exit 0)

@@ -29,7 +29,7 @@
 \usepackage{enumitem}
 \usepackage{tikz}
 \usepackage{mdframed}
-
+\usepackage[export]{adjustbox}
 % ── Sayfa Düzeni ────────────────────────────────────────────
 \geometry{
   a4paper,
@@ -108,7 +108,7 @@
   \vspace{0.5cm}
 
   {\LARGE \textbf{INF 334 – Bilgisayar Ağları}\\[0.4cm]
-   \huge \textbf{Yılici Proje Raporu}}
+   \huge \textbf{Yıliçi Proje Raporu}}
 
   \vspace{0.5cm}
   \rule{\linewidth}{0.5mm}
@@ -121,16 +121,13 @@
   \vspace{2cm}
 
   \begin{tabular}{rl}
-    \textbf{Öğrenci Adı Soyadı:} & Ad Soyad \\[4pt]
-    \textbf{Öğrenci Numarası:}   & XXXXXXXX \\[4pt]
-    \textbf{Grup / Kişi:}        & Kişi X (Kişi 1 / 2 / 3) \\[4pt]
-    \textbf{Ders Sorumlusu:}     & [Hoca Adı] \\[4pt]
-    \textbf{Ödev Verilişi:}      & 12 Mayıs 2026 \\[4pt]
-    \textbf{Teslim Tarihi:}      & 23 Mayıs 2026, 18:00 \\
+    \textbf{Erdem Ertan - 22401986}: & Ortam Kurulumu ve Sunucu Tarafi \\[4pt]
+    \textbf{Ayşe Selen Göğüş - 23401063:}   & İstemci Tarafi ve Multithread \\[4pt]
+    \textbf{Resul Sanberk Kalko - 23401068:}  & Loglama, İstatistik ve Wireshark\\[4pt]
   \end{tabular}
 
   \vfill
-  {\small İstanbul, Mayıs 2026}
+  {\small Mayıs 2026}
 \end{titlepage}
 
 % ── İçindekiler ─────────────────────────────────────────────
@@ -140,255 +137,194 @@
 % ════════════════════════════════════════════════════════════
 \section{Giriş}
 
-Bu rapor, INF 334 Bilgisayar Ağları dersi kapsamında hazırlanan yılici proje çalışmasını
-belgelemektedir. Proje, modern web iletişim protokolü olan QUIC ve HTTP/3'ün
-multithread bir Java uygulaması üzerinde gerçeklenmesini ve analiz edilmesini konu
-almaktadır.
-
-\begin{infobox}
-\textbf{Proje Özeti:} Cloudflare'in açık kaynaklı \texttt{quiche} kütüphanesi
-(\url{https://github.com/cloudflare/quiche}) ve Java arayüzü \texttt{quiche4j}
-(\url{https://github.com/kachayev/quiche4j}) kullanılarak QUIC+HTTP/3 tabanlı
-sunucu–istemci haberleşmesi gerçeklenmiş; Wireshark ile ağ trafiği yakalanmış
-ve istatistiksel loglar üretilmiştir.
-\end{infobox}
-
-Raporun devamında önce teorik arka plan verilmekte, ardından geliştirme ortamı
-ve uygulama mimarisi açıklanmakta, son olarak elde edilen sonuçlar sunulmaktadır.
+Bu rapor, INF 334 Bilgisayar Ağları dersi kapsamında hazırlanan yılici proje
+çalışmasını belgelemektedir. Proje kapsamında Cloudflare'in açık kaynaklı
+\texttt{quiche} kütüphanesi (\url{https://github.com/cloudflare/quiche})
+Docker ortamında derlenerek çalıştırılmış; QUIC+HTTP/3 tabanlı
+sunucu--istemci haberleşmesi gerçeklenmiş; Java ile multithread istemci
+yazılmış; Wireshark ile ağ trafiği yakalanmış ve istatistiksel loglar
+üretilmiştir.
 
 % ════════════════════════════════════════════════════════════
 \section{Teorik Arka Plan}
 
 \subsection{HTTP/2 ve HTTP/3 Karşılaştırması}
 
-HTTP/2, tek bir TCP bağlantısı üzerinden çoklu akış (stream) açarak çoğullama
-(multiplexing) sağlar. Ancak TCP katmanında yaşanan bir paket kaybı tüm akışları
-bloklar; bu probleme \textbf{TCP Head-of-Line Blocking} adı verilir.
-
-HTTP/3 ise taşıma katmanında TCP yerine \textbf{UDP} tabanlı \textbf{QUIC}
-protokolünü kullanır. Akışlar birbirinden bağımsız olduğundan, bir akıştaki
-paket kaybı diğer akışları etkilemez.
+HTTP/2, tek bir TCP bağlantısı üzerinden çoğullama (multiplexing) sağlar.
+Ancak TCP katmanında yaşanan bir paket kaybı tüm akışları bloklar; buna
+\textbf{TCP Head-of-Line Blocking} adı verilir. HTTP/3 ise taşıma katmanında
+TCP yerine \textbf{UDP} tabanlı \textbf{QUIC} protokolünü kullanır. Akışlar
+birbirinden bağımsız olduğundan bir akıştaki paket kaybı diğerlerini
+etkilemez.
 
 \begin{table}[H]
   \centering
   \caption{HTTP/2 ve HTTP/3 Protokollerinin Karşılaştırması}
   \begin{tabular}{lll}
     \toprule
-    \textbf{Özellik}           & \textbf{HTTP/2}         & \textbf{HTTP/3}        \\
+    \textbf{Özellik}          & \textbf{HTTP/2}      & \textbf{HTTP/3}       \\
     \midrule
-    Taşıma Katmanı             & TCP                     & UDP (QUIC)             \\
-    Güvenlik                   & TLS 1.2+                & TLS 1.3 (QUIC içinde) \\
-    Head-of-Line Blocking      & Var (TCP düzeyinde)     & Yok                   \\
-    Bağlantı Kurma Süresi      & 2–3 RTT                 & 0–1 RTT               \\
-    Bağlantı Göçü (Migration) & Desteklenmez            & 64-bit Connection ID  \\
-    Multiplexing               & Var                     & Var (geliştirilmiş)   \\
-    CPU Yükü                   & Daha az                 & Biraz daha fazla      \\
+    Taşıma Katmanı            & TCP                  & UDP (QUIC)            \\
+    Güvenlik                  & TLS 1.2+             & TLS 1.3 (QUIC içinde) \\
+    Head-of-Line Blocking     & Var                  & Yok                   \\
+    Bağlantı Kurma Süresi     & 2--3 RTT             & 0--1 RTT              \\
+    Bağlantı Göçü             & Desteklenmez         & 64-bit Connection ID  \\
     \bottomrule
   \end{tabular}
-  \label{tab:http_comparison}
 \end{table}
 
 \subsection{QUIC Protokolü}
-
 QUIC, Google tarafından geliştirilen ve IETF tarafından RFC 9000 ile
-standardize edilen yeni nesil bir taşıma protokolüdür. Temel özellikleri
-şunlardır:
-
-\begin{itemize}[leftmargin=1.5em]
+standardize edilen yeni nesil bir taşıma protokolüdür. Temel özellikleri:
+\begin{itemize}
   \item \textbf{0-RTT / 1-RTT bağlantı kurma:} TLS el sıkışması QUIC
-        handshake ile birleştirildiğinden bağlantı kurma süresi dramatik
-        biçimde azalır.
-  \item \textbf{Bağımsız akışlar:} Paket kaybı yalnızca ilgili akışı durdurur;
-        diğer akışlar iletişime devam eder.
-  \item \textbf{Bağlantı göçü:} 64-bit Connection ID sayesinde istemcinin
-        IP adresi değişse dahi (4G → Wi-Fi geçişi gibi) bağlantı kesilmez.
-  \item \textbf{Yerleşik şifreleme:} TLS 1.3 QUIC protokolünün ayrılmaz
-        bir parçasıdır.
+        handshake ile birleştirilmiştir.
+  \item \textbf{Bağımsız akışlar:} Paket kaybı yalnızca ilgili akışı
+        durdurur.
+  \item \textbf{Bağlantı göçü:} 64-bit Connection ID sayesinde IP adresi
+        değişse dahi (4G $\rightarrow$ Wi-Fi) bağlantı kesilmez.
+  \item \textbf{Yerleşik şifreleme:} TLS 1.3 QUIC'in ayrılmaz parçasıdır.
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════
-\section{Geliştirme Ortamı}
-
-\subsection{Kullanılan Araçlar ve Kütüphaneler}
-
+\section{Geliştirme Ortamı ve Kurulum}
+\subsection{Kullanılan Araçlar}
 \begin{table}[H]
   \centering
   \caption{Geliştirme Ortamı}
   \begin{tabular}{ll}
     \toprule
-    \textbf{Bileşen}          & \textbf{Sürüm / Açıklama}               \\
+    \textbf{Bileşen} & \textbf{Sürüm / Açıklama}   \\
     \midrule
-    İşletim Sistemi           & [Ubuntu 22.04 / macOS 14 / Windows 11]  \\
-    Java Sürümü               & JDK 17+                                  \\
-    quiche                    & v0.10.0 (Rust, Cloudflare)              \\
-    quiche4j                  & v0.2.5 (Java JNI bağlayıcı)            \\
-    Wireshark                 & 4.x                                     \\
-    IDE                       & [IntelliJ IDEA / VS Code]               \\
+    İşletim Sistemi  & macOS 15 (Apple M4 Pro)      \\
+    Docker           & 29.2.1                       \\
+    quiche           & v0.29.0 (Rust, Cloudflare)  \\
+    Java             & JDK 17+ (Maven çok modüllü)  \\
+    Wireshark        & 4.6.5                        \\
+    Rust / Cargo     & quiche4j JNI derlemesi       \\
+    quiche4j         & Java + \texttt{libquiche\_jni} \\
     \bottomrule
   \end{tabular}
 \end{table}
-
-\subsection{Kurulum Adımları}
-
-\textbf{quiche (Rust) Derleme:}
-\begin{lstlisting}[language=bash, caption={quiche kütüphanesinin derlenmesi}]
-git clone https://github.com/cloudflare/quiche
-cd quiche
-cargo build --examples
+\subsection{Docker ile Kurulum}
+quiche kütüphanesi Docker ortamında derlenmiştir. Bu yaklaşımın
+temel avantajı, farklı işletim sistemi ve mimari farklarından
+(Apple Silicon, Intel Mac) bağımsız, tekrar üretilebilir bir
+ortam sağlamasıdır. Oluşturulan Docker image ekip üyelerine
+dağıtılarak herkesin aynı ortamda çalışması garanti edilmiştir.
+\begin{lstlisting}[language=bash, caption={Dockerfile}]
+FROM rust:latest
+RUN apt-get update && apt-get install -y \
+    git cmake pkg-config libssl-dev clang libclang-dev
+RUN git clone --recursive \
+    https://github.com/cloudflare/quiche
+WORKDIR /quiche
+RUN cargo build --examples
+\end{lstlisting}
+\begin{lstlisting}[language=bash, caption={Image oluşturma ve sunucu başlatma}]
+# Image olustur
+docker build -t quiche-proje .
+# Sunucuyu baslat (ornek server, UDP 4433)
+docker run -d --name quiche-server -w /quiche/quiche \
+  -p 4433:4433/udp quiche-proje \
+  /quiche/target/debug/examples/server
+# HTTP/3 istemci ile test (host agi)
+docker run --rm --network host quiche-proje \
+  /quiche/target/debug/examples/http3-client \
+  https://cloudflare-quic.com/
 \end{lstlisting}
 
-\textbf{quiche4j Maven Bağımlılığı:}
-\begin{lstlisting}[language=xml, caption={pom.xml bağımlılıkları}]
-<dependencies>
-    <dependency>
-        <groupId>io.quiche4j</groupId>
-        <artifactId>quiche4j-core</artifactId>
-        <version>0.2.5</version>
-    </dependency>
-    <dependency>
-        <groupId>io.quiche4j</groupId>
-        <artifactId>quiche4j-jni</artifactId>
-        <classifier>linux_x64_86</classifier>
-        <version>0.2.5</version>
-    </dependency>
-</dependencies>
-\end{lstlisting}
+Kurulum tamamlandıktan sonra ortam terminal üzerinden test edilmiştir.
+Docker image başarıyla oluşturulduktan sonra iki ayrı terminal sekmesi
+açılmıştır. Birinci sekmede \texttt{quiche-server} çalıştırılmış ve
+sunucu \texttt{0.0.0.0:4433} adresinde QUIC bağlantılarını beklemeye
+başlamıştır. İkinci sekmede ise \texttt{quiche-client} çalıştırılmış
+ve sunucuya QUIC+HTTP/3 isteği gönderilmiştir. İstemciden alınan
+\texttt{Not Found!} yanıtı, QUIC el sıkışmasının ve HTTP/3
+iletişiminin başarıyla gerçekleştiğini doğrulamaktadır.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\textwidth}{!}{\includegraphics{sunucu.png}}
+  \caption{QUIC sunucusunun Docker container içinde başlatılması}
+  \label{fig:sunucu}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\textwidth}{!}{ \includegraphics{client.png}}
+  \caption{quiche istemcisinin sunucuya bağlanması -- \texttt{Not Found!} yanıtı}
+  \label{fig:client}
+\end{figure}
+
 
 % ════════════════════════════════════════════════════════════
 \section{Uygulama Mimarisi}
+\subsection{Sunucu Tarafı}
+Sunucu tarafı, quiche kütüphanesinin örnek sunucusu
+\texttt{quiche-server} kullanılarak Docker container içinde
+çalıştırılmıştır. Sunucu \texttt{0.0.0.0:4433} adresinde UDP
+üzerinden QUIC bağlantılarını dinlemektedir. İstemciden alınan
+\texttt{Not Found!} yanıtı, QUIC el sıkışmasının ve HTTP/3
+iletişiminin başarıyla gerçekleştiğini doğrulamaktadır.
+\subsection{İstemci Tarafı -- Multithread Java (\texttt{QuicheClient})}
 
-\subsection{Genel Yapı}
+Kısım I'de \texttt{part1} modülündeki \texttt{QuicheClient.java} kullanılmıştır.
+İstemci, \texttt{java.nio.channels.DatagramChannel} ile UDP üzerinden QUIC
+\textbf{Initial} formatında sabit boyutlu paketler gönderir; \texttt{ExecutorService}
+ile eşzamanlı görevler çalıştırılır. Her olay için \texttt{START}, başarılı
+gönderimde \texttt{STOP}, hata durumunda \texttt{FAIL} kaydı üretilir.
 
-Uygulama üç ana bileşenden oluşmaktadır:
-
-\begin{enumerate}[leftmargin=1.5em]
-  \item \textbf{Kişi 1 – Sunucu Tarafı:} QUIC+HTTP/3 sunucu; \texttt{java.nio.channels}
-        ve \texttt{SocketChannel} kullanılarak kurulmuştur.
-  \item \textbf{Kişi 2 – İstemci (Uç) Tarafı:} Multithread QUIC istemci;
-        eş zamanlı senaryo başlatma.
-  \item \textbf{Kişi 3 – Loglama \& İstatistik:} Her thread için \texttt{.txt}
-        log dosyası; TPS hesaplama; Wireshark yakalama.
-\end{enumerate}
-
-\subsection{Sunucu Tarafı (Kişi 1)}
-
-% --- Kendi kodunuzu buraya ekleyin ---
-\begin{lstlisting}[caption={QUIC Sunucu – Temel Yapı (QuicServer.java)}]
-import java.net.*;
-import java.nio.*;
-import java.nio.channels.*;
-
-public class QuicServer {
-
-    private static final int PORT = 4433;
-
-    public static void main(String[] args) throws Exception {
-        DatagramChannel channel = DatagramChannel.open();
-        channel.bind(new InetSocketAddress(PORT));
-        channel.configureBlocking(false);
-
-        // quiche4j Config ve Connection nesneleri burada kurulacak
-        // TODO: quiche4j ile QUIC bağlantı kabulü gerçekleştir
-        System.out.println("QUIC sunucu " + PORT + " portunda dinliyor...");
-
-        // Ana olay döngüsü
-        while (true) {
-            // Gelen UDP paketlerini işle
-            // TODO: bağlantı yönetimi ve HTTP/3 istek işleme
-        }
-    }
+\begin{lstlisting}[caption={QuicheClient.java -- çekirdek yapı}]
+ExecutorService executorService =
+    Executors.newFixedThreadPool(THREAD_COUNT);
+logger = new HighPerformanceLogger(
+    Paths.get("quic_project_logs.txt"), 10_000,
+    HighPerformanceLogger.OverflowPolicy.BLOCK);
+tracker = new StatisticsTracker();
+for (int i = 0; i < NUM_EVENT; i++) {
+    final int id = i;
+    executorService.submit(() -> startEvent(id));
 }
+// startEvent: DatagramChannel -> 127.0.0.1:4433
+// QUIC Initial header (26 byte) + payload
 \end{lstlisting}
 
-\subsection{İstemci (Uç) Tarafı (Kişi 2)}
+\textbf{Not:} Bu istemci tam TLS/HTTP/3 el sıkışması yapmaz; Docker
+\texttt{examples/server} ile birlikte Wireshark'ta Initial paketleri ve
+loglama/istatistik gereksinimleri karşılanır. Gerçek HTTP/3 bonus
+bölümünde quiche4j ile sağlanmıştır.
 
-\begin{lstlisting}[caption={Multithread QUIC İstemci – Temel Yapı (QuicClient.java)}]
-import java.util.concurrent.*;
+\subsection{Loglama ve İstatistik Modülü (\texttt{part3})}
 
-public class QuicClient {
-
-    private static final int THREAD_COUNT = 10;
-    private static final String SERVER_HOST = "localhost";
-    private static final int   SERVER_PORT  = 4433;
-
-    public static void main(String[] args) throws Exception {
-        ExecutorService pool = Executors.newFixedThreadPool(THREAD_COUNT);
-
-        for (int i = 0; i < THREAD_COUNT; i++) {
-            final int threadId = i;
-            pool.submit(() -> {
-                // TODO: Her thread için ayrı QUIC bağlantısı kur
-                //       HTTP/3 GET isteği gönder
-                //       Yanıtı al ve logla
-                System.out.println("Thread " + threadId + " başlatıldı.");
-            });
-        }
-
-        pool.shutdown();
-        pool.awaitTermination(60, TimeUnit.SECONDS);
-    }
-}
-\end{lstlisting}
-
-\subsection{Loglama ve İstatistik Modülü (Kişi 3)}
-
-\begin{lstlisting}[caption={Log Yazıcı (LogWriter.java)}]
-import java.io.*;
-import java.time.*;
-import java.util.concurrent.atomic.*;
-
-public class LogWriter {
-
-    private final String logFile;
-    private final AtomicLong startCount = new AtomicLong(0);
-    private final AtomicLong stopCount  = new AtomicLong(0);
-    private final AtomicLong failCount  = new AtomicLong(0);
-    private final long startTimeMs      = System.currentTimeMillis();
-
-    public LogWriter(String threadName) {
-        this.logFile = "log_" + threadName + ".txt";
-    }
-
-    public synchronized void log(String event, boolean success) {
-        long ts = System.currentTimeMillis();
-        if ("START".equals(event))        startCount.incrementAndGet();
-        else if (success)                 stopCount.incrementAndGet();
-        else                              failCount.incrementAndGet();
-
-        double elapsed = (ts - startTimeMs) / 1000.0;
-        double tps     = stopCount.get() / Math.max(elapsed, 0.001);
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(logFile, true))) {
-            pw.printf("[%s] ts=%d event=%s start=%d stop=%d fail=%d TPS=%.2f%n",
-                Instant.ofEpochMilli(ts), ts, event,
-                startCount.get(), stopCount.get(), failCount.get(), tps);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-\end{lstlisting}
+\texttt{com.networkproject.logger} paketi: \texttt{HighPerformanceLogger}
+(kilitlenmesiz kuyruk), \texttt{StatisticsTracker} (TPS), \texttt{LogEvent}
+(\texttt{START}/\texttt{STOP}/\texttt{FAIL}). Çıktı dosyası:
+\texttt{quic\_project\_logs.txt}.
 
 % ════════════════════════════════════════════════════════════
 \section{Test Senaryoları ve Sonuçlar}
 
 \subsection{Test Ortamı}
 
-[Test ortamınızı burada açıklayın: kaç thread, hangi sunucu, yerel mi uzak mı, vb.]
+Kısım I testleri macOS üzerinde, Docker \texttt{quiche-proje} imajındaki
+\texttt{examples/server} (UDP 4433) ve \texttt{QuicheClient} jar dosyası ile
+yapılmıştır. Parametreler: \texttt{THREAD\_COUNT=5}, \texttt{NUM\_EVENT=10},
+hedef \texttt{127.0.0.1:4433}. Dış HTTP/3 doğrulaması için Docker
+\texttt{http3-client} ile \texttt{cloudflare-quic.com} kullanılmıştır
+(sistem \texttt{curl --http3} desteklemediği için).
 
 \subsection{Performans İstatistikleri}
 
 \begin{table}[H]
   \centering
-  \caption{Test Sonuçları Özeti}
+  \caption{Kısım I -- Yerel test sonuçları (\texttt{QuicheClient}, 23.05.2026)}
   \begin{tabular}{lrrrr}
     \toprule
     \textbf{Senaryo}   & \textbf{Thread} & \textbf{Start} & \textbf{Stop} &
     \textbf{Fail} \\
     \midrule
-    Yerel (localhost)  & 10  & 100 & 98  & 2  \\
-    Yerel (localhost)  & 50  & 500 & 490 & 10 \\
-    Uzak HTTP/3 sitesi & 5   & 50  & 47  & 3  \\
+    Yerel (localhost)  & 5   & 10  & 10  & 0  \\
     \bottomrule
   \end{tabular}
   \label{tab:results}
@@ -396,39 +332,68 @@ public class LogWriter {
 
 \begin{table}[H]
   \centering
-  \caption{TPS (Saniyede Ortalama Test Sayısı) Ölçümleri}
+  \caption{TPS ölçümleri (Kısım I)}
   \begin{tabular}{lrrr}
     \toprule
-    \textbf{Senaryo}  & \textbf{Süre (s)} & \textbf{Başarılı} & \textbf{TPS} \\
+    \textbf{Senaryo}  & \textbf{Süre (ms)} & \textbf{Başarılı} & \textbf{TPS} \\
     \midrule
-    10 Thread         & 10.5  & 98  & 9.33  \\
-    50 Thread         & 12.8  & 490 & 38.28 \\
-    Uzak Sunucu       & 8.2   & 47  & 5.73  \\
+    10 olay / 5 thread & $\approx$124 & 10 & $\approx$80--122 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
+TPS, kısa test penceresinde yüksek çıkmaktadır; raporda hem konsol hem
+\texttt{StatisticsTracker} özeti birlikte verilmiştir.
+
 \subsection{Wireshark Analizi}
+\subsubsection{Yerel Sunucu--İstemci Trafiği}
 
-% Kendi ekran görüntülerinizi buraya ekleyin:
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.9\linewidth]{wireshark_quic.png}
-%   \caption{Wireshark – QUIC/UDP trafiği yakalama}
-%   \label{fig:wireshark}
-% \end{figure}
+Wireshark'ta \texttt{udp.port == 4433} filtresiyle yakalanan
+trafikte şu gözlemler yapılmıştır:
 
-[Wireshark ekran görüntülerinizi \texttt{includegraphics} ile buraya ekleyin.]
+\begin{figure}[H]
+  \centering
+    \resizebox{\textwidth}{!}{\includegraphics{yerelWS.png}}
+    \caption{Wireshark -- Yerel QUIC/UDP trafiği (udp.port == 4433)}
+  \label{fig:wireshark_yerel}
+\end{figure}
 
-Yakalanan trafikte aşağıdaki gözlemler yapılmıştır:
+\begin{itemize}
+  \item Tüm paketler \textbf{UDP/4433} üzerinden iletilmiştir.
+  \item \textbf{Version Negotiation} ile QUIC versiyonu belirlenmiştir.
+  \item \textbf{Initial} ve \textbf{Handshake} paketleriyle TLS 1.3
+        el sıkışması gerçekleşmiştir.
+  \item \textbf{Protected Payload (KP0)} ile şifreli HTTP/3 verisi
+        transfer edilmiştir.
+\end{itemize}
+
+
+\subsubsection{Dış HTTP/3 Sitesi Trafiği}
+
+quiche istemcisi ile \texttt{cloudflare-quic.com} adresine QUIC+HTTP/3
+isteği gönderilmiş ve Wireshark üzerinden trafik gözlemlenmiştir.
+
+\begin{figure}[H]
+  \centering
+    \resizebox{\textwidth}{!}{\includegraphics{dis_site.png}}
+  \caption{Wireshark -- Cloudflare dış site QUIC trafiği}
+  \label{fig:wireshark_dis}
+\end{figure}
 
 \begin{itemize}[leftmargin=1.5em]
-  \item QUIC paketleri \textbf{UDP/4433} üzerinden iletilmiştir.
-  \item İlk bağlantıda \textbf{Initial} ve \textbf{Handshake} paket türleri
-        gözlemlenmiştir.
-  \item Veri akışı \textbf{1-RTT} şifreli paketler aracılığıyla gerçekleşmiştir.
-  \item [Diğer gözlemlerinizi buraya ekleyin.]
+  \item Kaynak IP olarak Cloudflare'e ait \textbf{17.248.209.70}
+        adresi gözlemlenmiştir.
+  \item \textbf{Handshake} paketleri ile TLS 1.3 el sıkışması
+        gerçekleştirilmiştir.
+  \item Gerçek bir HTTP/3 sitesiyle başarılı QUIC bağlantısı
+        kurulduğu doğrulanmıştır.
 \end{itemize}
+\subsubsection{Kısım I -- Java Initial paketleri}
+
+Multithread istemci çalışırken loopback üzerinde \textbf{10 UDP paketi}
+(\texttt{udp.port == 4433}) gözlemlenmiştir. Paket detayında QUIC
+\textbf{Initial}, Version \texttt{0x00000001} ve sabit Connection ID
+alanları görülmüştür (tam TLS el sıkışması bu senaryoda yoktur).
 
 % ════════════════════════════════════════════════════════════
 \section{Bonus: quiche4j Analizi}
@@ -456,26 +421,81 @@ bağlayıcı katmandır.
   \end{tabular}
 \end{table}
 
+\subsection{JNI Kurulumu ve Çalıştırma}
+
+Bonus için \texttt{quiche4j} deposu klonlanmış, \texttt{quiche4j-jni}
+release modda derlenmiş ve \texttt{QUICHE\_JNI\_LIB} ile Java'ya
+yüklenmiştir (\texttt{bonus/setup-jni.sh}).
+
+\begin{lstlisting}[language=bash, caption={Bonus sunucu ve istemci (iki terminal)}]
+cd /Users/sanberk96/Projects/network
+export QUICHE_JNI_LIB=/tmp/quiche4j-native/release
+export SSLKEYLOGFILE=logs/sslkeys-bonus.log
+./bonus/run-server.sh 4433
+# Baska terminal:
+./bonus/run-client.sh https://127.0.0.1:4433/
+\end{lstlisting}
+
+\textbf{Önemli:} Bonus sunucusu çalışırken Docker \texttt{quiche-server}
+aynı 4433 portunu kullanmamalıdır (\texttt{docker stop quiche-server}).
+
 \subsection{Gözlem ve Tartışma}
 
-[Bu bölümde quiche ve quiche4j'yi çalıştırarak elde ettiğiniz gözlemleri,
-karşılaşılan farklılıkları ve Wireshark ekran görüntülerinizi ekleyin.]
+Bonus istemci çıktısı: \texttt{! h3 conn is established},
+\texttt{:status: 200}, gövde \texttt{Hello world}. Bu, Kısım I'deki
+manuel UDP paketlerinden farklı olarak \textbf{gerçek TLS 1.3 + HTTP/3 GET}
+kanıtıdır.
+
+\begin{table}[H]
+  \centering
+  \caption{Kısım I vs Bonus}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Özellik} & \textbf{QuicheClient} & \textbf{Http3Client (bonus)} \\
+    \midrule
+    Taşıma           & UDP Initial simülasyonu & QUIC + TLS + HTTP/3 \\
+    Yanıt            & Sunucu logu           & \texttt{200 OK} + body \\
+    Wireshark        & Initial paketleri     & Handshake + (key log ile) decrypt \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Wireshark -- Bonus (şifre çözülmüş QUIC)}
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item Wireshark: arayüz \textbf{Loopback: lo0} (veya Any), capture başlat.
+  \item TLS $\rightarrow$ (Pre)-Master-Secret log dosyası:
+        \texttt{logs/sslkeys-bonus.log} (her iki terminalde
+        \texttt{SSLKEYLOGFILE} export edilmeli).
+  \item Sunucu + istemciyi çalıştır; filtre: \texttt{udp.port == 4433}.
+  \item Paket ayrıntısında \textbf{Decrypted QUIC}, ALPN \texttt{h3-29},
+        HTTP/3 pseudo-header (\texttt{:method: GET}, \texttt{:status: 200}).
+\end{enumerate}
+
+% Ekran goruntusu eklediginizde dosya adini guncelleyin:
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.95\linewidth]{bonus_wireshark.png}
+%   \caption{Wireshark -- Bonus quiche4j, TLS key log ile cozulmus QUIC/HTTP/3}
+%   \label{fig:bonus_ws}
+% \end{figure}
 
 % ════════════════════════════════════════════════════════════
 \section{Sonuç ve Değerlendirme}
 
-Bu proje kapsamında QUIC ve HTTP/3 protokollerinin Java ortamında
-\texttt{quiche4j} kütüphanesi aracılığıyla multithread olarak gerçeklenmesi
-sağlanmıştır. Elde edilen başlıca çıkarımlar şunlardır:
+Bu proje kapsamında QUIC/HTTP/3 kavramları Docker \texttt{quiche} ile,
+multithread Java istemci ve loglama modülü ile, bonus kısımda ise
+\texttt{quiche4j} (JNI) ile uçtan uca doğrulanmıştır. Elde edilen başlıca
+çıkarımlar:
 
 \begin{itemize}[leftmargin=1.5em]
-  \item HTTP/3'ün UDP tabanlı yapısı, yüksek paket kaybı ortamlarında
-        HTTP/2'ye kıyasla belirgin performans avantajı sağlamaktadır.
-  \item QUIC'in bağlantı göçü özelliği, mobil ağ geçişlerinde kesintisiz
-        iletişim imkânı sunar.
-  \item Multithread yapı sayesinde eş zamanlı bağlantı sayısı artırılmış ve
-        ölçülebilir TPS değerleri elde edilmiştir.
-  \item [Kendi özgün değerlendirmelerinizi buraya ekleyin.]
+  \item HTTP/3, UDP üzerinde QUIC ile TCP head-of-line blocking'i azaltır.
+  \item Kısım I: \texttt{DatagramChannel} + loglama ile ölçülebilir TPS;
+        Wireshark'ta Initial paketleri.
+  \item Bonus: Gerçek HTTP/3 GET ve \texttt{200 OK}; Rust quiche ile aynı
+        protokol yığını, Java API üzerinden.
+  \item Wireshark, yerel loopback ve dış Cloudflare trafiğinde QUIC
+        el sıkışmasını görselleştirmek için kritik araçtır.
 \end{itemize}
 
 % ════════════════════════════════════════════════════════════
@@ -513,28 +533,25 @@ sağlanmıştır. Elde edilen başlıca çıkarımlar şunlardır:
 
 Aşağıda bir thread için üretilen örnek log dosyası içeriği verilmiştir:
 
-\begin{lstlisting}[language={}, caption={log\_thread0.txt – Örnek çıktı}]
-[2026-05-20T10:00:01Z] ts=1716199201000 event=START start=1  stop=0  fail=0 TPS=0.00
-[2026-05-20T10:00:01Z] ts=1716199201120 event=STOP  start=1  stop=1  fail=0 TPS=8.33
-[2026-05-20T10:00:01Z] ts=1716199201245 event=START start=2  stop=1  fail=0 TPS=8.00
-[2026-05-20T10:00:01Z] ts=1716199201380 event=STOP  start=2  stop=2  fail=0 TPS=9.52
-[2026-05-20T10:00:01Z] ts=1716199201510 event=FAIL  start=3  stop=2  fail=1 TPS=9.09
+\begin{lstlisting}[language={}, caption={quic\_project\_logs.txt – Örnek satırlar}]
+[2026-05-23 16:31:38.953] [pool-1-thread-1#21] [Event: START] - Thread ID 0 ...
+[2026-05-23 16:31:39.016] [pool-1-thread-1#21] [Event: STOP] - Thread ID 0 successfully sent packet into channel
 \end{lstlisting}
 
 \section{Wireshark Filtre Komutları}
 
-\begin{lstlisting}[language={}, caption={Wireshark görüntü filtreleri}]
-# Yalnızca QUIC paketlerini göster
-quic
-
-# Belirli porta göre filtrele
+\begin{lstlisting}[language={}, caption={Wireshark filtreleri ve TLS key log}]
+# Yerel bonus / Kisim I
 udp.port == 4433
 
-# QUIC Initial paketleri
-quic.long.packet_type == 0
+# QUIC genel
+quic
 
-# QUIC 1-RTT (Short Header) paketleri
-quic.short
+# Dis site (Cloudflare)
+udp.port == 443 or quic
+
+# TLS key log (Preferences -> TLS):
+# logs/sslkeys-bonus.log  (bonus icin)
 \end{lstlisting}
 
 \end{document}

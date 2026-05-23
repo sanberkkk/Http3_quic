@@ -1,6 +1,0 @@
-com/networkproject/logger/StatisticsTracker.class
-com/networkproject/logger/HighPerformanceLogger.class
-com/networkproject/logger/HighPerformanceLogger$OverflowPolicy.class
-com/networkproject/logger/LogEvent.class
-com/networkproject/logger/LoggerListener.class
-com/networkproject/logger/HighPerformanceLogger$LogRecord.class

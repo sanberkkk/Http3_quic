@@ -1,0 +1,24 @@
+# Maven
+target/
+*.jar
+!**/src/**
+
+# IDE / OS
+.idea/
+.vscode/
+.cursor/
+.DS_Store
+*.iml
+
+# Logs (runtime; sample may stay at root)
+logs/
+
+# JNI build output (host-specific)
+/tmp/quiche4j-native/
+
+# LaTeX aux
+*.aux
+*.log
+*.out
+*.toc
+*.pdf

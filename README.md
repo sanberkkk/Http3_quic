@@ -8,17 +8,15 @@ mvn -pl part3,part1,bonus package -DskipTests
 
 ## Kısım I
 
-**Terminal 1 — sunucu**
+**Terminal 1**
 ```bash
 ./part1/run-server.sh
 ```
 
-**Terminal 2 — istemci**
+**Terminal 2**
 ```bash
 ./part1/run-client.sh
 ```
-
-Log: `quic_project_logs.txt`
 
 ## Bonus
 
@@ -29,14 +27,13 @@ chmod +x bonus/setup-jni.sh
 export QUICHE_JNI_LIB=/tmp/quiche4j-native/release
 ```
 
-**Terminal 1 — sunucu**
+**Terminal 1**
 ```bash
-docker stop quiche-server 2>/dev/null
 export QUICHE_JNI_LIB=/tmp/quiche4j-native/release
 ./bonus/run-server.sh 4433
 ```
 
-**Terminal 2 — istemci**
+**Terminal 2**
 ```bash
 export QUICHE_JNI_LIB=/tmp/quiche4j-native/release
 ./bonus/run-client.sh https://127.0.0.1:4433/

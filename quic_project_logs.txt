@@ -18,3 +18,47 @@
 [2026-05-23 16:31:39.019] [pool-1-thread-4#24] [Event: STOP] - Thread ID 9 successfully sent packet into channel
 [2026-05-23 16:31:39.019] [pool-1-thread-3#23] [Event: START] - Thread ID 7 event started at 16:31:39.018
 [2026-05-23 16:31:39.020] [pool-1-thread-3#23] [Event: STOP] - Thread ID 7 successfully sent packet into channel
+[2026-05-23 20:07:03.859] [pool-1-thread-4#24] [Event: START] - Thread ID 3 event started at 20:07:03.854
+[2026-05-23 20:07:03.859] [pool-1-thread-5#25] [Event: START] - Thread ID 4 event started at 20:07:03.854
+[2026-05-23 20:07:03.859] [pool-1-thread-3#23] [Event: START] - Thread ID 2 event started at 20:07:03.854
+[2026-05-23 20:07:03.858] [pool-1-thread-1#21] [Event: START] - Thread ID 0 event started at 20:07:03.854
+[2026-05-23 20:07:03.859] [pool-1-thread-2#22] [Event: START] - Thread ID 1 event started at 20:07:03.854
+[2026-05-23 20:07:03.884] [pool-1-thread-2#22] [Event: STOP] - Thread ID 1 successfully sent packet into channel
+[2026-05-23 20:07:03.885] [pool-1-thread-4#24] [Event: STOP] - Thread ID 3 successfully sent packet into channel
+[2026-05-23 20:07:03.885] [pool-1-thread-1#21] [Event: STOP] - Thread ID 0 successfully sent packet into channel
+[2026-05-23 20:07:03.887] [pool-1-thread-5#25] [Event: STOP] - Thread ID 4 successfully sent packet into channel
+[2026-05-23 20:07:03.886] [pool-1-thread-3#23] [Event: STOP] - Thread ID 2 successfully sent packet into channel
+[2026-05-23 20:07:03.890] [pool-1-thread-4#24] [Event: START] - Thread ID 5 event started at 20:07:03.890
+[2026-05-23 20:07:03.890] [pool-1-thread-3#23] [Event: START] - Thread ID 6 event started at 20:07:03.890
+[2026-05-23 20:07:03.890] [pool-1-thread-1#21] [Event: START] - Thread ID 8 event started at 20:07:03.890
+[2026-05-23 20:07:03.890] [pool-1-thread-2#22] [Event: START] - Thread ID 7 event started at 20:07:03.890
+[2026-05-23 20:07:03.890] [pool-1-thread-4#24] [Event: STOP] - Thread ID 5 successfully sent packet into channel
+[2026-05-23 20:07:03.891] [pool-1-thread-5#25] [Event: START] - Thread ID 9 event started at 20:07:03.891
+[2026-05-23 20:07:03.891] [pool-1-thread-3#23] [Event: STOP] - Thread ID 6 successfully sent packet into channel
+[2026-05-23 20:07:03.891] [pool-1-thread-2#22] [Event: STOP] - Thread ID 7 successfully sent packet into channel
+[2026-05-23 20:07:03.891] [pool-1-thread-1#21] [Event: STOP] - Thread ID 8 successfully sent packet into channel
+[2026-05-23 20:07:03.892] [pool-1-thread-5#25] [Event: STOP] - Thread ID 9 successfully sent packet into channel
+[2026-05-23 20:26:25.338] [pool-1-thread-1#22] [Event: START] - Thread ID 0 event started at 20:26:25.329
+[2026-05-23 20:26:25.336] [pool-1-thread-2#23] [Event: START] - Thread ID 1 event started at 20:26:25.330
+[2026-05-23 20:26:32.719] [pool-1-thread-1#22] [Event: STOP] - Thread ID 0 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:26:33.008] [pool-1-thread-2#23] [Event: STOP] - Thread ID 1 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:32.012] [pool-1-thread-1#22] [Event: START] - Thread ID 0 event started at 20:27:32.009
+[2026-05-23 20:27:32.012] [pool-1-thread-3#24] [Event: START] - Thread ID 2 event started at 20:27:32.009
+[2026-05-23 20:27:32.012] [pool-1-thread-5#26] [Event: START] - Thread ID 4 event started at 20:27:32.009
+[2026-05-23 20:27:32.012] [pool-1-thread-2#23] [Event: START] - Thread ID 1 event started at 20:27:32.009
+[2026-05-23 20:27:32.012] [pool-1-thread-4#25] [Event: START] - Thread ID 3 event started at 20:27:32.009
+[2026-05-23 20:27:38.879] [pool-1-thread-4#25] [Event: STOP] - Thread ID 3 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:38.885] [pool-1-thread-3#24] [Event: STOP] - Thread ID 2 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:38.892] [pool-1-thread-3#24] [Event: START] - Thread ID 5 event started at 20:27:38.891
+[2026-05-23 20:27:38.893] [pool-1-thread-4#25] [Event: START] - Thread ID 6 event started at 20:27:38.893
+[2026-05-23 20:27:38.897] [pool-1-thread-1#22] [Event: STOP] - Thread ID 0 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:38.898] [pool-1-thread-1#22] [Event: START] - Thread ID 7 event started at 20:27:38.898
+[2026-05-23 20:27:39.041] [pool-1-thread-5#26] [Event: STOP] - Thread ID 4 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:39.044] [pool-1-thread-5#26] [Event: START] - Thread ID 8 event started at 20:27:39.044
+[2026-05-23 20:27:39.136] [pool-1-thread-2#23] [Event: STOP] - Thread ID 1 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:39.136] [pool-1-thread-2#23] [Event: START] - Thread ID 9 event started at 20:27:39.136
+[2026-05-23 20:27:44.897] [pool-1-thread-4#25] [Event: STOP] - Thread ID 6 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:44.912] [pool-1-thread-3#24] [Event: STOP] - Thread ID 5 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:44.950] [pool-1-thread-1#22] [Event: STOP] - Thread ID 7 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:45.225] [pool-1-thread-5#26] [Event: STOP] - Thread ID 8 QUIC/HTTP3 OK via Docker (exit 0)
+[2026-05-23 20:27:45.273] [pool-1-thread-2#23] [Event: STOP] - Thread ID 9 QUIC/HTTP3 OK via Docker (exit 0)
